@@ -27,14 +27,14 @@ function fnExtractConf {
 ## Variable definitions
 ##
 vBUILD_NUMBER=$(fnExtractConf JK_BUILD_NUMBER)
-vGIT_REPO=$(fnExtractConf GIT_REPO_NAME)
+vGIT_TAF_REPO=$(fnExtractConf GIT_TAF_REPO_NAME)
+vGIT_TC_REPO=$(fnExtractConf GIT_TC_REPO_NAME)
 vREPO_LOCATION=$(fnExtractConf JK_CHECKOUT_DIR)
 
-vSCRIPT_LOCATION="${vREPO_LOCATION}/TAF-Common/TAF-Manager/trigger"
+vSCRIPT_LOCATION="${vREPO_LOCATION}/${vGIT_TC_REPO}/TAF-Manager/trigger"
 vCFG_TEMPLATE_LOCATION="${vREPO_LOCATION}/TAF/config"
 vTEST_SCENARIO_LOCATION="${vREPO_LOCATION}/TAF/testScenarios"
-vMAIL_TEXT="${vSCRIPT_LOCATION}/mailText.html"
-vMAIL_TEXT_TEMPLATE="${vSCRIPT_LOCATION}/mailText_template.html"
+vREPORT_TEXT="${vSCRIPT_LOCATION}/$(fnExtractConf REPORT_TEXT)"
 vUC_NAMES=(`cat ${vPROJ_CONF} | grep -i ^UC_NAMES= |  sed 's/UC_NAMES=//' | sed 's/:[0-9]*//g' | sed 's/\://g'`);
 vUC_ITERATIONS=(`cat ${vPROJ_CONF} | grep -i ^UC_NAMES= |  sed 's/UC_NAMES=//' | sed 's/\_//g' | sed 's/[A-Za-z]*//g' | sed 's/[0-9]://g' | sed 's/\://g'`);
 vPROFILE_NAMES=(`cat ${vPROJ_CONF} | grep -i ^PROFILE_NAMES= |  sed 's/PROFILE_NAMES=//' | sed 's/:[0-9]*//g' | sed 's/\://g'`);
@@ -92,7 +92,7 @@ fi
 # LINUX PATH
 vARTIFATS_BY_DATE="${vBUILD_NUMBER}"
 vTEMP_ARTIFACT_LOCATION="../testArtifacts/${vARTIFATS_BY_DATE}"
-
+vNEXUS_REPO_PATH="$(fnExtractConf NEXUS_REPO)/${NEXUS_EXT_PATH}/${vARTIFATS_BY_DATE}"
 
 ## Function definition to place the reports/logs to the staging area
 ##
@@ -130,11 +130,10 @@ function fnPlaceReports {
 ##
 function fnFormatText {
 	echo "In fnFormatText"
-	cp -v ${vMAIL_TEXT_TEMPLATE} ${vMAIL_TEXT}
 
 	for tArr in "${vUC_NAMES[@]}"
 	do
-		echo -e "<p>" >> ${vMAIL_TEXT}
+		echo -e "<p>" >> ${vREPORT_TEXT}
 		for tProfileName in "${vPROFILE_NAMES[@]}"
 		do
 			pwd
@@ -175,7 +174,8 @@ function fnFormatText {
 		# log
 		if [[ -s  ${vTEMP_ARTIFACT_LOCATION}/${tArr}/${tArr}.log ]]; then
 			echo "fnPrepareText: Updating mail format for ${tTestExec}.log "
-			echo -e "</p>" >> ${vMAIL_TEXT}
+			echo -e "Log: <a href="${vNEXUS_REPO_PATH}/${tArr}/${tArr}.log">${tArr}.log</a>" >> ${vREPORT_TEXT}
+			echo -e "</p>" >> ${vREPORT_TEXT}
 		else
 			echo "fnPrepareText: ${tTestExec}.log is not present, updating the mailformat"
 		fi
@@ -189,20 +189,20 @@ function fnFormatText {
 	echo "Test-FailCount: ${vROBOT_FAIL_COUNT}"
 	echo "Test-PassPercentage: ${percentage}"
 
-	sed -i "s/Total-TestExecution/Total-TestExecution:  ${totalCount}/" ${vMAIL_TEXT}
-	sed -i "s/Test-PassCount/Test-PassCount:  ${vROBOT_PASS_COUNT}/" ${vMAIL_TEXT}
-	sed -i "s/Test-FailCount/Test-FailCount:  ${vROBOT_FAIL_COUNT}/" ${vMAIL_TEXT}
-	sed -i "s/Test-PassPercentage/Test-PassPercentage:  ${percentage}/" ${vMAIL_TEXT}
+	sed -i "s/Total-TestExecution/Total-TestExecution:  ${totalCount}/" ${vREPORT_TEXT}
+	sed -i "s/Test-PassCount/Test-PassCount:  ${vROBOT_PASS_COUNT}/" ${vREPORT_TEXT}
+	sed -i "s/Test-FailCount/Test-FailCount:  ${vROBOT_FAIL_COUNT}/" ${vREPORT_TEXT}
+	sed -i "s/Test-PassPercentage/Test-PassPercentage:  ${percentage}/" ${vREPORT_TEXT}
 
 	# Footer text
-	echo -e "<p>       Note: This is an auto generated mail. Please do not reply </P>" >> ${vMAIL_TEXT}
+	echo -e "<p>       Note: This is an auto generated mail. Please do not reply </P>" >> ${vREPORT_TEXT}
 	echo -e "<p>"
-	echo -e "Regards,<br>" >> ${vMAIL_TEXT}
-	echo -e "Automation Admin" >> ${vMAIL_TEXT}
-	echo -e "</p>" >> ${vMAIL_TEXT}
+	echo -e "Regards,<br>" >> ${vREPORT_TEXT}
+	echo -e "Automation Admin" >> ${vREPORT_TEXT}
+	echo -e "</p>" >> ${vREPORT_TEXT}
 
 	## Copy of mail text
-	cp -v ${vMAIL_TEXT} ${vTEMP_ARTIFACT_LOCATION}/.
+	cp -v ${vREPORT_TEXT} ${vTEMP_ARTIFACT_LOCATION}/.
 
 	## Copy Text Report to Artifactory Package
 	cp -v ${vTextReport} ${vTEMP_ARTIFACT_LOCATION}/.
@@ -234,6 +234,7 @@ function fnPrepareText {
 	#report
 	if [[ -s ${vTEMP_ARTIFACT_LOCATION}/${tArr}/${tTestExec}.html ]]; then
 		echo "fnPrepareText: Mail content preparation for ${tTestExecText}"
+		echo -e "<a href="${vNEXUS_REPO_PATH}/${tArr}/${tTestExec}.html">${tTestExecText}</a>: [ <font color="${resultColor}"><b> ${tResult} </b></font> ]<br>" >> ${vREPORT_TEXT}
 		echo -e "${tTestExecText}:${tResult}" >> ${vTextReport}
 	else
 		echo "fnPrepareText: No report for ${tTestExec}"
@@ -244,10 +245,10 @@ function fnPrepareText {
 		echo "fnPrepareText: XML Parsing for TC of ${tTestExec}"
 		tc=`grep "kw name=\"Test" ${vTEMP_ARTIFACT_LOCATION}/${tArr}/${tTestExec}.xml | wc -l`
 		sed -i s/TC_${tArr}/$tc/g \
-			${vMAIL_TEXT}
+			${vREPORT_TEXT}
 	else
 		echo "fnPrepareText: No xml found for ${tTestExec}"
-		sed -i s/TC_${tArr}/"NA"/g ${vMAIL_TEXT}
+		sed -i s/TC_${tArr}/"NA"/g ${vREPORT_TEXT}
 	fi
 }
 
@@ -451,4 +452,4 @@ function fnExecuteRobot {
 ##
 fnExecuteRobot
 fnPlaceReports
-#fnFormatText
+fnFormatText
