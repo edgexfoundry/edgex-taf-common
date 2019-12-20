@@ -18,6 +18,7 @@ import os
 import shutil
 import sys
 from robot import run
+from robot import rebot
 
 WORK_DIR = os.getcwd()
 SCENARIOS_DIR = WORK_DIR + "/TAF/testScenarios/"
@@ -56,7 +57,7 @@ def configure_parser():
     t_parser.add_argument("-L", "--loglevel", choices=["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "NONE"],
                           default=RUNLEVEL, dest="logLevel", help="Tags to exclude")
     t_parser.add_argument("--version", "-v", action="version", version="%(prog)s {0}".format(VERSION))
-    t_parser.add_argument("-p", "--profile", default="default", dest="profile", help="profile to use")
+    t_parser.add_argument("-p", "--profile", nargs='*', default=["default"], dest="profile", help="profile to use")
     return t_parser
 
 
@@ -81,9 +82,9 @@ def remove_old_report_folder():
         shutil.rmtree(OUTPUTDIR)
 
 
-def setup_config():
+def setup_config(test_profile):
     os.environ['WORK_DIR'] = WORK_DIR
-    os.environ['PROFILE'] = args.profile
+    os.environ['PROFILE'] = test_profile
 
     # Read environment variable and store to SettingsInfo
     SettingsInfo().add_name('workDir', os.environ['WORK_DIR'])
@@ -94,12 +95,14 @@ def setup_config():
     SettingsInfo().add_name('constant', constant)
 
 
-def get_kwargs():
-    variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, args.profile)
+def get_kwargs(test_profile):
+    variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, test_profile)
     kwargs = {
-                "name": "EdgeX", "loglevel": args.logLevel,
-                "outputdir": OUTPUTDIR, "variablefile": variable_file,
-                "variable": ["WORK_DIR:{}".format(WORK_DIR), "PROFILE:{}".format(args.profile)]
+                "name": test_profile, "loglevel": args.logLevel,
+                "outputdir": OUTPUTDIR,
+                "output": OUTPUTDIR+"/"+test_profile+".xml",
+                "variablefile": variable_file,
+                "variable": ["WORK_DIR:{}".format(WORK_DIR), "PROFILE:{}".format(test_profile)]
     }
     if args.include:
         kwargs["include"] = args.include
@@ -116,18 +119,29 @@ if __name__ == "__main__":
 
     args = configure_parser().parse_args()
     validate_args()
-    setup_config()
-    kwargs = get_kwargs()
 
-    # Run testing
-    os.chdir(SCENARIOS_DIR)
-    if args.useCase and ('*' in args.useCase or '.' in args.useCase):
-        logging.info("Running use case {0}".format(args.useCase))
-        run('.', **kwargs)
-    elif args.useCase:
-        logging.info("Running use case {0}".format(args.testCase))
-        run(*args.useCase, **kwargs)
+    logging.info("Profiles for testing: {0}".format(args.profile))
+    for profile in args.profile:
+        logging.info("Run testing for profile '{0}'".format(profile))
+        setup_config(profile)
+        kwargs = get_kwargs(profile)
 
-    if args.testCase:
-        logging.info("Running test case {0}".format(args.testCase))
-        run(*args.testCase, **kwargs)
+        os.chdir(SCENARIOS_DIR)
+        if args.useCase and ('*' in args.useCase or '.' in args.useCase):
+            logging.info("Running use case {0}".format(args.useCase))
+            run('.', **kwargs)
+        elif args.useCase:
+            logging.info("Running use case {0}".format(args.testCase))
+            run(*args.useCase, **kwargs)
+
+        if args.testCase:
+            logging.info("Running test case {0}".format(args.testCase))
+            run(*args.testCase, **kwargs)
+
+    #  Aggregate testing reports
+    outputs = []
+    for profile in args.profile:
+        output = "{}/{}.xml".format(OUTPUTDIR, profile)
+        outputs.append(output)
+    # print(*my_list)
+    rebot(*outputs, name="edgex", outputdir=OUTPUTDIR, xunit=OUTPUTDIR+"/result.xml")
