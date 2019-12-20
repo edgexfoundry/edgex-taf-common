@@ -17,7 +17,7 @@ TUC - Test Util Catalog.
 1. Create a edgex-taf project which contains a TAF folder.
 2. Add edgex-taf-common as a submodule to your edgex-taf project and install required lib:
     ```shell script
-    git submodule add git@github.com:edgexfoundry-holding/edgex-taf-common.git
+    git submodule add git@github.com:edgexfoundry/edgex-taf-common.git
     pip3 install robotbackgroundlogger
     pip3 install robotframework
     pip3 install configparser
