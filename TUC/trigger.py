@@ -4,7 +4,7 @@
 
  @license SPDX-License-Identifier: Apache-2.0
 
- @file run.py
+ @file trigger.py
 
  @description
      This file should execute at edgex-taf root directory, it allows testers to execute set(s) of testCases/useCases based on the parameters passed. It will create
@@ -61,7 +61,7 @@ def configure_parser():
     return t_parser
 
 
-def validate_args():
+def validate_args(args):
     """
     Validate arguments received.
     """
@@ -95,7 +95,7 @@ def setup_config(test_profile):
     SettingsInfo().add_name('constant', constant)
 
 
-def get_kwargs(test_profile):
+def get_kwargs(args, test_profile):
     variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, test_profile)
     kwargs = {
                 "name": test_profile, "loglevel": args.logLevel,
@@ -111,20 +111,20 @@ def get_kwargs(test_profile):
     return kwargs
 
 
-if __name__ == "__main__":
+def start():
     remove_old_report_folder()
     remove_old_logs()
 
     logging.basicConfig(level=logging.DEBUG)
 
     args = configure_parser().parse_args()
-    validate_args()
+    validate_args(args)
 
     logging.info("Profiles for testing: {0}".format(args.profile))
     for profile in args.profile:
         logging.info("Run testing for profile '{0}'".format(profile))
         setup_config(profile)
-        kwargs = get_kwargs(profile)
+        kwargs = get_kwargs(args, profile)
 
         os.chdir(SCENARIOS_DIR)
         if args.useCase and ('*' in args.useCase or '.' in args.useCase):

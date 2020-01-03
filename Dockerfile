@@ -34,7 +34,8 @@ RUN echo "**** install Python ****" && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     \
     echo "**** install robotframework and dependencies ****" && \
-    python3 -m pip install robotframework && \
+    pip3 install ./edgex-taf-common  &&  \
+    pip3 install robotframework && \
     pip3 install docker  &&  \
     pip3 install -U python-dotenv  &&  \
     pip3 install -U RESTinstance  &&  \
