@@ -1,0 +1,8 @@
+robotframework
+python-dotenv
+robotframework-requests
+robotbackgroundlogger
+RESTinstance
+configparser
+requests
+numpy
