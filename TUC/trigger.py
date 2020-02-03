@@ -57,7 +57,15 @@ def configure_parser():
     t_parser.add_argument("-L", "--loglevel", choices=["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "NONE"],
                           default=RUNLEVEL, dest="logLevel", help="Tags to exclude")
     t_parser.add_argument("--version", "-v", action="version", version="%(prog)s {0}".format(VERSION))
-    t_parser.add_argument("-p", "--profile", nargs='*', default=["default"], dest="profile", help="profile to use")
+    t_parser.add_argument("-p", "--profile", default=None, dest="profile", help="profile to use")
+    t_parser.add_argument("--name", default=None, dest="name", help="Override the name of the top level test suite")
+
+    sub_cmd = t_parser.add_subparsers(dest="sub_cmd")
+
+    rebot_sub_cmd = sub_cmd.add_parser('rebot')
+    rebot_sub_cmd.add_argument("--inputdir", default=None, dest="inputdir", help="where to fetch report files")
+    rebot_sub_cmd.add_argument("--outputdir", default=None, dest="outputdir", help="where to create output files")
+
     return t_parser
 
 
@@ -82,9 +90,9 @@ def remove_old_report_folder():
         shutil.rmtree(OUTPUTDIR)
 
 
-def setup_config(test_profile):
+def setup_config(args):
     os.environ['WORK_DIR'] = WORK_DIR
-    os.environ['PROFILE'] = test_profile
+    os.environ['PROFILE'] = args.profile
 
     # Read environment variable and store to SettingsInfo
     SettingsInfo().add_name('workDir', os.environ['WORK_DIR'])
@@ -95,15 +103,23 @@ def setup_config(test_profile):
     SettingsInfo().add_name('constant', constant)
 
 
-def get_kwargs(args, test_profile):
-    variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, test_profile)
+def get_kwargs(args):
     kwargs = {
-                "name": test_profile, "loglevel": args.logLevel,
+                "loglevel": args.logLevel,
                 "outputdir": OUTPUTDIR,
-                "output": OUTPUTDIR+"/"+test_profile+".xml",
-                "variablefile": variable_file,
-                "variable": ["WORK_DIR:{}".format(WORK_DIR), "PROFILE:{}".format(test_profile)]
+                "output": OUTPUTDIR+"/"+"report.xml",
+                "variable": ["WORK_DIR:{}".format(WORK_DIR), "PROFILE:{}".format(args.profile)]
     }
+
+    if args.name:
+        kwargs["name"] = args.name
+    elif args.profile:
+        kwargs["name"] = args.profile
+
+    if args.profile:
+        variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, args.profile)
+        kwargs["variablefile"] = variable_file
+
     if args.include:
         kwargs["include"] = args.include
     if args.exclude:
@@ -112,36 +128,42 @@ def get_kwargs(args, test_profile):
 
 
 def start():
-    remove_old_report_folder()
-    remove_old_logs()
-
     logging.basicConfig(level=logging.DEBUG)
 
     args = configure_parser().parse_args()
+
+    if not args.sub_cmd:
+        run_robot(args)
+
+    if args.sub_cmd and args.sub_cmd == "rebot":
+        run_rebot(args)
+
+
+def run_robot(args):
+    remove_old_report_folder()
+    remove_old_logs()
+
     validate_args(args)
 
-    logging.info("Profiles for testing: {0}".format(args.profile))
-    for profile in args.profile:
-        logging.info("Run testing for profile '{0}'".format(profile))
-        setup_config(profile)
-        kwargs = get_kwargs(args, profile)
+    logging.info("Run testing for profile '{0}'".format(args.profile))
+    setup_config(args)
+    kwargs = get_kwargs(args)
 
-        os.chdir(SCENARIOS_DIR)
-        if args.useCase and ('*' in args.useCase or '.' in args.useCase):
-            logging.info("Running use case {0}".format(args.useCase))
-            run('.', **kwargs)
-        elif args.useCase:
-            logging.info("Running use case {0}".format(args.testCase))
-            run(*args.useCase, **kwargs)
+    os.chdir(SCENARIOS_DIR)
+    if args.useCase and ('*' in args.useCase or '.' in args.useCase):
+        logging.info("Running use case {0}".format(args.useCase))
+        run('.', **kwargs)
+    elif args.useCase:
+        logging.info("Running use case {0}".format(args.testCase))
+        run(*args.useCase, **kwargs)
 
-        if args.testCase:
-            logging.info("Running test case {0}".format(args.testCase))
-            run(*args.testCase, **kwargs)
+    if args.testCase:
+        logging.info("Running test case {0}".format(args.testCase))
+        run(*args.testCase, **kwargs)
 
+
+def run_rebot(args):
+    logging.info("Run rebot for the '{0}' folder".format(args.inputdir))
     #  Aggregate testing reports
-    outputs = []
-    for profile in args.profile:
-        output = "{}/{}.xml".format(OUTPUTDIR, profile)
-        outputs.append(output)
-    # print(*my_list)
-    rebot(*outputs, name="edgex", outputdir=OUTPUTDIR, xunit=OUTPUTDIR+"/result.xml")
+    files = glob.glob(args.inputdir+"/*.xml")
+    rebot(*files, name="edgex", outputdir=args.outputdir, xunit="result.xml")

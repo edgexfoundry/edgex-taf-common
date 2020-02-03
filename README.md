@@ -49,6 +49,14 @@ TUC - Test Util Catalog.
     # Run test cases
     python3 -m TUC -t UC_coredata/event.robot -t UC_metadata/device.robot
     ```
+
+Report location:
+```
+TAF/testArtifacts/reports/edgex
+├── log.html
+├── report.html
+└── report.xml
+```
    
 4. Develop with IDE
 
@@ -58,6 +66,19 @@ TUC - Test Util Catalog.
     ```shell script
     docker build .
     ```
+
+# Reports aggregation
+Specify the reports directory and output directory
+
+`python3 -m TUC rebot --inputdir path/to/report/dir --outputdir path/to/output/dir` 
+
+Then TUC will fetch robot XML reports from **inputdir** and regenerate new report to **outputdir**
+```
+path/to/output/dir
+├── log.html
+├── report.html
+└── result.xml (xUnit compatible XML format)
+```
 
 ## Community
 - Chat: https://edgexfoundry.slack.com
