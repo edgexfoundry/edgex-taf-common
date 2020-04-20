@@ -6,3 +6,4 @@ RESTinstance
 configparser
 requests
 numpy
+paho-mqtt
