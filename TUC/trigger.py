@@ -99,8 +99,11 @@ def setup_config(args):
     SettingsInfo().add_name('profile', os.environ['PROFILE'])
 
     # Read config file and store to SettingsInfo
-    constant = __import__("TAF.config." + os.environ['PROFILE'] + ".configuration", fromlist=['configuration'])
+    constant = __import__("TAF.config.global_variables", fromlist=['global_variables'])
     SettingsInfo().add_name('constant', constant)
+
+    profile_constant = __import__("TAF.config." + os.environ['PROFILE'] + ".configuration", fromlist=['configuration'])
+    SettingsInfo().add_name('profile_constant', profile_constant)
 
 
 def get_kwargs(args):
@@ -117,8 +120,9 @@ def get_kwargs(args):
         kwargs["name"] = args.profile
 
     if args.profile:
+        global_variables_file = "{}/global_variables.py".format(CONFIG_DIR)
         variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, args.profile)
-        kwargs["variablefile"] = variable_file
+        kwargs["variablefile"] = [global_variables_file, variable_file]
 
     if args.include:
         kwargs["include"] = args.include
