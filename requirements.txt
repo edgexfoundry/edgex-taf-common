@@ -7,3 +7,5 @@ configparser
 requests
 numpy
 paho-mqtt
+docker
+psutil
