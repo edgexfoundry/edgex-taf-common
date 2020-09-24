@@ -45,6 +45,10 @@ RUN echo "**** install Python ****" && \
     pip3 install -U robotframework-requests  &&  \
     pip3 install -U paho-mqtt  &&  \
     apk add --no-cache py3-numpy && \
-    apk add --no-cache py3-psutil
+    apk add --no-cache py3-psutil  && \
+    \
+    echo "**** install other tools ****" && \
+    apk add --no-cache curl
+
 
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
