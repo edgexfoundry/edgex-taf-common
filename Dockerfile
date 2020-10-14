@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019
+# Copyright (c) 2020
 # IOTech
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -7,10 +7,10 @@
 ARG DOCKER_VERSION=18.09.5
 FROM docker:${DOCKER_VERSION} AS docker-cli
 
-FROM alpine:3.9
+FROM alpine:3.12
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
-  copyright='Copyright (c) 2019: IOTech'
+  copyright='Copyright (c) 2020: IOTech'
 
 LABEL maintainer="Bruce Huang <bruce@iotechsys.com>"
 
@@ -44,11 +44,19 @@ RUN echo "**** install Python ****" && \
     pip3 install -U requests  &&  \
     pip3 install -U robotframework-requests  &&  \
     pip3 install -U paho-mqtt  &&  \
+    pip3 install -U robotframework-seleniumlibrary  && \
     apk add --no-cache py3-numpy && \
     apk add --no-cache py3-psutil  && \
     \
     echo "**** install other tools ****" && \
-    apk add --no-cache curl
-
+    apk add --no-cache curl && \
+    \
+    echo "**** install chromedriver ****" && \
+    apk update && apk upgrade && \
+    echo @latest-stable http://nl.alpinelinux.org/alpine/latest-stable/community >> /etc/apk/repositories && \
+    echo @latest-stable http://nl.alpinelinux.org/alpine/latest-stable/main >> /etc/apk/repositories && \
+    apk add --no-cache \
+    chromium@latest-stable \
+    chromium-chromedriver@latest-stable
 
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
