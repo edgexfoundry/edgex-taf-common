@@ -1,6 +1,7 @@
 robotframework
 python-dotenv
 robotframework-requests
+robotframework-seleniumlibrary
 robotbackgroundlogger
 RESTinstance
 configparser
