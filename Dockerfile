@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020
+# Copyright (c) 2021
 # IOTech
 #
 # SPDX-License-Identifier: Apache-2.0
@@ -10,7 +10,7 @@ FROM docker:${DOCKER_VERSION} AS docker-cli
 FROM alpine:3.12
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
-  copyright='Copyright (c) 2020: IOTech'
+  copyright='Copyright (c) 2021: IOTech'
 
 LABEL maintainer="Bruce Huang <bruce@iotechsys.com>"
 
@@ -50,6 +50,7 @@ RUN echo "**** install Python ****" && \
     \
     echo "**** install other tools ****" && \
     apk add --no-cache curl && \
+    apk add --no-cache openssl && \
     \
     echo "**** install chromedriver ****" && \
     apk update && apk upgrade && \
