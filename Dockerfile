@@ -35,18 +35,19 @@ RUN echo "**** install Python ****" && \
     \
     echo "**** install robotframework and dependencies ****" && \
     pip3 install ./edgex-taf-common  &&  \
-    pip3 install robotframework && \
-    pip3 install docker  &&  \
-    pip3 install -U python-dotenv  &&  \
-    pip3 install -U RESTinstance  &&  \
-    pip3 install -U robotbackgroundlogger  &&  \
-    pip3 install -U configparser  &&  \
-    pip3 install -U requests  &&  \
-    pip3 install -U robotframework-requests  &&  \
-    pip3 install -U paho-mqtt  &&  \
-    pip3 install -U robotframework-seleniumlibrary  && \
-    apk add --no-cache py3-numpy && \
-    apk add --no-cache py3-psutil  && \
+    pip3 install robotframework==3.2.2 && \
+    pip3 install docker==4.4.1  &&  \
+    pip3 install -U python-dotenv==0.15.0  &&  \
+    # install RESTinstance for pytz and yaml library
+    pip3 install -U RESTinstance==1.0.2  &&  \
+    pip3 install -U robotbackgroundlogger==1.2  &&  \
+    pip3 install -U configparser==5.0.1  &&  \
+    pip3 install -U requests==2.25.1 &&  \
+    pip3 install -U robotframework-requests==0.8.0  &&  \
+    pip3 install -U paho-mqtt==1.5.1  &&  \
+    pip3 install -U robotframework-seleniumlibrary==4.5.0  && \
+    apk add --no-cache py3-numpy==1.18.4-r0 && \
+    apk add --no-cache py3-psutil==5.7.0-r0  && \
     \
     echo "**** install other tools ****" && \
     apk add --no-cache curl && \
