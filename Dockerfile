@@ -45,6 +45,7 @@ RUN echo "**** install Python ****" && \
     pip3 install -U requests==2.25.1 &&  \
     pip3 install -U robotframework-requests==0.8.0  &&  \
     pip3 install -U paho-mqtt==1.5.1  &&  \
+    pip3 install -U redis==3.5.3  &&  \
     pip3 install -U robotframework-seleniumlibrary==4.5.0  && \
     apk add --no-cache py3-numpy==1.18.4-r0 && \
     apk add --no-cache py3-psutil==5.7.0-r0  && \
