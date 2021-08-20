@@ -34,6 +34,8 @@ RUN echo "**** install Python ****" && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     \
     echo "**** install robotframework and dependencies ****" && \
+    # update packages for RESTinstance and pyzmq
+    apk add --no-cache --upgrade python3-dev g++ zeromq-dev=4.3.3-r0  &&  \
     pip3 install ./edgex-taf-common  &&  \
     pip3 install robotframework==3.2.2 && \
     pip3 install docker==4.4.1  &&  \
@@ -46,6 +48,7 @@ RUN echo "**** install Python ****" && \
     pip3 install -U robotframework-requests==0.8.0  &&  \
     pip3 install -U paho-mqtt==1.5.1  &&  \
     pip3 install -U redis==3.5.3  &&  \
+    pip3 install -U pyzmq==22.2.1  &&  \
     pip3 install -U robotframework-seleniumlibrary==5.1.3  && \
     apk add --no-cache py3-numpy==1.18.4-r0 && \
     apk add --no-cache py3-psutil==5.7.0-r0  && \
