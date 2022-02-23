@@ -7,7 +7,7 @@
 ARG DOCKER_VERSION=18.09.5
 FROM docker:${DOCKER_VERSION} AS docker-cli
 
-FROM alpine:3.12
+FROM alpine:3.15
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
   copyright='Copyright (c) 2021: IOTech'
@@ -34,8 +34,10 @@ RUN echo "**** install Python ****" && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     \
     echo "**** install robotframework and dependencies ****" && \
+    # Add packages for psycopg2
+    apk add --no-cache libc-dev libffi-dev postgresql-dev gcc musl-dev && \
     # update packages for RESTinstance and pyzmq
-    apk add --no-cache --upgrade python3-dev g++ zeromq-dev=4.3.3-r0  &&  \
+    apk add --no-cache --upgrade python3-dev g++ zeromq-dev=4.3.4-r0  &&  \
     pip3 install ./edgex-taf-common  &&  \
     pip3 install robotframework==3.2.2 && \
     pip3 install docker==4.4.1  &&  \
@@ -50,8 +52,9 @@ RUN echo "**** install Python ****" && \
     pip3 install -U redis==3.5.3  &&  \
     pip3 install -U pyzmq==22.2.1  &&  \
     pip3 install -U robotframework-seleniumlibrary==5.1.3  && \
-    apk add --no-cache py3-numpy==1.18.4-r0 && \
-    apk add --no-cache py3-psutil==5.7.0-r0  && \
+    pip3 install -U psycopg2==2.9.3  && \
+    apk add --no-cache py3-numpy==1.21.4-r0 && \
+    apk add --no-cache py3-psutil==5.8.0-r1  && \
     \
     echo "**** install other tools ****" && \
     apk add --no-cache curl && \
