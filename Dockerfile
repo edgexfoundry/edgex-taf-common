@@ -39,7 +39,7 @@ RUN echo "**** install Python ****" && \
     # update packages for RESTinstance and pyzmq
     apk add --no-cache --upgrade python3-dev g++ zeromq-dev=4.3.4-r0  &&  \
     pip3 install ./edgex-taf-common  &&  \
-    pip3 install robotframework==3.2.2 && \
+    pip3 install robotframework==4.1.3 && \
     pip3 install docker==4.4.1  &&  \
     pip3 install -U python-dotenv==0.15.0  &&  \
     # install RESTinstance for pytz and yaml library
