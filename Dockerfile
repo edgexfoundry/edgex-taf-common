@@ -1,48 +1,51 @@
 #
-# Copyright (c) 2021
+# Copyright (c) 2022
 # IOTech
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-ARG DOCKER_VERSION=18.09.5
-FROM docker:${DOCKER_VERSION} AS docker-cli
-
-FROM alpine:3.15
+FROM alpine:3.16
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
-  copyright='Copyright (c) 2021: IOTech'
+  copyright='Copyright (c) 2022: IOTech'
 
 LABEL maintainer="Bruce Huang <bruce@iotechsys.com>"
 
-COPY --from=docker-cli  /usr/local/bin/docker   /usr/local/bin/docker
 COPY . /edgex-taf/edgex-taf-common
 COPY robot-entrypoint.sh /usr/local/bin/
 
 WORKDIR /edgex-taf
 
-RUN echo "**** install Python ****" && \
+RUN sed -e 's/dl-cdn[.]alpinelinux.org/dl-4.alpinelinux.org/g' -i~ /etc/apk/repositories
+
+RUN apk upgrade && apk add --update --no-cache openssl curl docker-cli && \
+    # **** install chromedriver ****
+    apk add --no-cache chromium chromium-chromedriver && \
+    \
+    # Add packages for psycopg2
+    apk add --no-cache libc-dev libffi-dev postgresql-dev gcc musl-dev && \
+    \
+    # Update packages for RESTinstance and pyzmq
+    apk add --no-cache python3-dev g++ zeromq-dev=4.3.4-r0  &&  \
+    \
+    # install Python
     apk add --no-cache python3 && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     apk add --no-cache tzdata      &&  \
     cp /usr/share/zoneinfo/UTC /etc/localtime  &&  \
     apk del tzdata  &&  \
     \
-    echo "**** install pip ****" && \
+    # install pip
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --no-cache --upgrade pip setuptools wheel && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     \
-    echo "**** install robotframework and dependencies ****" && \
-    # Add packages for psycopg2
-    apk add --no-cache libc-dev libffi-dev postgresql-dev gcc musl-dev && \
-    # update packages for RESTinstance and pyzmq
-    apk add --no-cache --upgrade python3-dev g++ zeromq-dev=4.3.4-r0  &&  \
+    # Install robotframework and required libraries
     pip3 install ./edgex-taf-common  &&  \
     pip3 install robotframework==4.1.3 && \
     pip3 install docker==4.4.1  &&  \
     pip3 install -U python-dotenv==0.15.0  &&  \
-    # install RESTinstance for pytz and yaml library
     pip3 install -U RESTinstance==1.0.2  &&  \
     pip3 install -U robotbackgroundlogger==1.2  &&  \
     pip3 install -U configparser==5.0.1  &&  \
@@ -53,19 +56,8 @@ RUN echo "**** install Python ****" && \
     pip3 install -U pyzmq==22.2.1  &&  \
     pip3 install -U robotframework-seleniumlibrary==5.1.3  && \
     pip3 install -U psycopg2==2.9.3  && \
-    apk add --no-cache py3-numpy==1.21.4-r0 && \
-    apk add --no-cache py3-psutil==5.8.0-r1  && \
-    \
-    echo "**** install other tools ****" && \
-    apk add --no-cache curl && \
-    apk add --no-cache openssl && \
-    \
-    echo "**** install chromedriver ****" && \
-    apk update && apk upgrade && \
-    echo @latest-stable http://nl.alpinelinux.org/alpine/latest-stable/community >> /etc/apk/repositories && \
-    echo @latest-stable http://nl.alpinelinux.org/alpine/latest-stable/main >> /etc/apk/repositories && \
-    apk add --no-cache \
-    chromium@latest-stable \
-    chromium-chromedriver@latest-stable
-
+    pip3 install -U numpy==1.22.3 && \
+    pip3 install -U psutil==5.9.0  && \
+    pip3 install -U pycryptodome==3.15.0
+    
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
