@@ -58,6 +58,7 @@ RUN apk upgrade && apk add --update --no-cache openssl curl docker-cli && \
     pip3 install -U psycopg2==2.9.3  && \
     pip3 install -U numpy==1.22.3 && \
     pip3 install -U psutil==5.9.0  && \
-    pip3 install -U pycryptodome==3.15.0
-    
+    pip3 install -U pycryptodome==3.15.0 && \
+    pip3 install -U influxdb-client==1.33.0
+
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
