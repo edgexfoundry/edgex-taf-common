@@ -18,7 +18,7 @@ WORKDIR /edgex-taf
 
 RUN sed -e 's/dl-cdn[.]alpinelinux.org/dl-4.alpinelinux.org/g' -i~ /etc/apk/repositories
 
-RUN apk upgrade && apk add --update --no-cache openssl curl docker-cli && \
+RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     # **** install chromedriver ****
     apk add --no-cache chromium chromium-chromedriver && \
     \
