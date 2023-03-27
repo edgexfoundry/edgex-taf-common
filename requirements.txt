@@ -10,6 +10,6 @@ paho-mqtt==1.5.1
 docker==4.4.1
 numpy==1.22.0
 psutil==5.7.0
-redis==3.5.3
+redis==4.5.3
 pyzmq==22.2.1
 influxdb-client==1.33.0
