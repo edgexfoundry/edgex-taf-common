@@ -52,7 +52,7 @@ RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     pip3 install -U requests==2.25.1 &&  \
     pip3 install -U robotframework-requests==0.8.0  &&  \
     pip3 install -U paho-mqtt==1.5.1  &&  \
-    pip3 install -U redis==3.5.3  &&  \
+    pip3 install -U redis==4.5.3  &&  \
     pip3 install -U pyzmq==22.2.1  &&  \
     pip3 install -U robotframework-seleniumlibrary==5.1.3  && \
     pip3 install -U psycopg2==2.9.3  && \
