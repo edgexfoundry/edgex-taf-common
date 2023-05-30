@@ -82,7 +82,7 @@ path/to/output/dir
 ```
 
 ## Community
-- Chat: https://edgexfoundry.slack.com
+- Discussion: https://github.com/orgs/edgexfoundry/discussions
 - Mailing lists: https://lists.edgexfoundry.org/mailman/listinfo
 
 ## License
