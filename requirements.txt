@@ -3,7 +3,7 @@ python-dotenv==0.15.0
 robotframework-requests==0.8.0
 robotframework-seleniumlibrary==5.1.3
 robotbackgroundlogger==1.2
-RESTinstance==1.0.2
+RESTinstance==1.3.0
 configparser==5.0.1
 requests==2.25.1
 paho-mqtt==1.5.1
