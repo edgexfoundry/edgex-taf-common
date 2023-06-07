@@ -13,6 +13,7 @@ LABEL maintainer="Bruce Huang <bruce@iotechsys.com>"
 
 COPY . /edgex-taf/edgex-taf-common
 COPY robot-entrypoint.sh /usr/local/bin/
+COPY requirements.txt /edgex-taf/requirements.txt
 
 WORKDIR /edgex-taf
 
@@ -43,22 +44,6 @@ RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     \
     # Install robotframework and required libraries
     pip3 install ./edgex-taf-common  &&  \
-    pip3 install robotframework==4.1.3 && \
-    pip3 install docker==4.4.1  &&  \
-    pip3 install -U python-dotenv==0.15.0  &&  \
-    pip3 install -U RESTinstance==1.0.2  &&  \
-    pip3 install -U robotbackgroundlogger==1.2  &&  \
-    pip3 install -U configparser==5.0.1  &&  \
-    pip3 install -U requests==2.25.1 &&  \
-    pip3 install -U robotframework-requests==0.8.0  &&  \
-    pip3 install -U paho-mqtt==1.5.1  &&  \
-    pip3 install -U redis==4.5.3  &&  \
-    pip3 install -U pyzmq==22.2.1  &&  \
-    pip3 install -U robotframework-seleniumlibrary==5.1.3  && \
-    pip3 install -U psycopg2==2.9.3  && \
-    pip3 install -U numpy==1.22.3 && \
-    pip3 install -U psutil==5.9.0  && \
-    pip3 install -U pycryptodome==3.15.0 && \
-    pip3 install -U influxdb-client==1.33.0
+    pip3 install -r requirements.txt
 
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
