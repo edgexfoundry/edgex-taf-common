@@ -12,6 +12,6 @@ numpy==1.22.3
 psutil==5.9.0
 redis==4.5.4
 pyzmq==22.2.1
-influxdb-client==1.33.0
+influxdb-client==1.36.1
 psycopg2==2.9.3
 pycryptodome==3.15.0
