@@ -9,7 +9,7 @@ requests==2.31.0
 paho-mqtt==1.6.1
 docker==6.1.3
 numpy==1.22.3
-psutil==5.9.0
+psutil==5.9.5
 redis==4.6.0
 pyzmq==25.1.0
 influxdb-client==1.36.1
