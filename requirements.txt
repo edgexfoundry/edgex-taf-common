@@ -14,4 +14,4 @@ redis==4.6.0
 pyzmq==25.1.0
 influxdb-client==1.36.1
 psycopg2==2.9.7
-pycryptodome==3.18.0
+pycryptodome==3.19.0
