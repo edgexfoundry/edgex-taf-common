@@ -1,5 +1,5 @@
 robotframework==6.1.1
-python-dotenv==1.0.0
+python-dotenv==1.0.1
 robotframework-requests==0.9.5
 robotframework-seleniumlibrary==6.2.0
 robotbackgroundlogger==1.2
