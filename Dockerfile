@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-FROM alpine:3.16
+FROM alpine:3.20
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
   copyright='Copyright (c) 2022: IOTech'
@@ -27,16 +27,17 @@ RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     apk add --no-cache libc-dev libffi-dev postgresql-dev gcc musl-dev && \
     \
     # Update packages for RESTinstance and pyzmq
-    apk add --no-cache python3-dev g++ zeromq-dev=4.3.4-r0  &&  \
+    apk add --no-cache python3-dev g++ zeromq-dev=4.3.5-r2  &&  \
     \
     # install Python
     apk add --no-cache python3 && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
-    apk add --no-cache tzdata      &&  \
+    apk add --no-cache tzdata  &&  \
     cp /usr/share/zoneinfo/UTC /etc/localtime  &&  \
     apk del tzdata  &&  \
     \
     # install pip
+    rm /usr/lib/python*/EXTERNALLY-MANAGED && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --no-cache --upgrade pip setuptools wheel && \
