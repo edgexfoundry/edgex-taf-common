@@ -40,11 +40,11 @@ RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     rm /usr/lib/python*/EXTERNALLY-MANAGED && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --no-cache --upgrade pip setuptools wheel && \
+    pip3 install --no-cache-dir --upgrade pip setuptools wheel && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     \
     # Install robotframework and required libraries
-    pip3 install ./edgex-taf-common  &&  \
-    pip3 install -r requirements.txt
+    pip3 install --no-cache-dir ./edgex-taf-common  &&  \
+    pip3 install --no-cache-dir -r requirements.txt
 
 ENTRYPOINT ["sh", "/usr/local/bin/robot-entrypoint.sh"]
