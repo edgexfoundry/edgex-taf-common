@@ -1,7 +1,7 @@
 <!--
 
  Copyright (C) 2019 Intel Corporation
- Copyright (C) 2019 IOTech Ltd
+ Copyright (C) 2019-2025 IOTech Ltd
  SPDX-License-Identifier: Apache-2.0
 
 -->
@@ -12,6 +12,21 @@
 ## Overview
 Contains common code or scripts such as TUC which will be common for all the project specific TAF code.
 TUC - Test Util Catalog.
+
+> **BREAKING CHANGE:**  
+> In **v1.0**, edgex-taf-comand options have been updated.
+> Please review the new options by running:
+> ```bash
+> python3 -m TUC -h
+> ```
+> and for **rebot** sub command:
+> ```bash
+> python3 -m TUC rebot -h
+> ```
+> Additionally, the following variables has changed:
+> - environment variable **PROFILE** -> **TAF_CONFIG**
+> - **SettingsInfo().profile** -> **SettingsInfo().tafConfig**
+> - **SettingsInfo().profile_constant** -> **SettingsInfo().config_constant**
 
 # Usage
 
@@ -30,8 +45,13 @@ TUC - Test Util Catalog.
     │   ├── README.md
     │   ├── __init__.py
     │   ├── config
+    │   │   ├──global_variables.py
+    │   │   └── default
+    │   │       └── configuration.py
     │   ├── testArtifacts
-    │   ├── testCaseApps
+    │   │   ├── logs
+    │   │   └── reports
+    │   ├── testCaseModules
     │   ├── testScenarios
     │   └── utils
     ├── .gitignore
@@ -44,16 +64,13 @@ TUC - Test Util Catalog.
     ```shell script
     cd edgex-taf-project
    
-    # Run use cases
-    python3 -m TUC -u UC_coredata -u UC_metadata
-    
-    # Run test cases
-    python3 -m TUC -t UC_coredata/event.robot -t UC_metadata/device.robot
+    # Run tests
+    python3 -m TUC -t functionalTest/API/core-data -t functionalTest/API/core-metadata/info/GET.robot
     ```
 
-Report location:
+Default report location:
 ```
-TAF/testArtifacts/reports/edgex
+TAF/testArtifacts/reports
 ├── log.html
 ├── report.html
 └── report.xml
@@ -71,7 +88,7 @@ TAF/testArtifacts/reports/edgex
 # Reports aggregation
 Specify the reports directory and output directory
 
-`python3 -m TUC rebot --inputdir path/to/report/dir --outputdir path/to/output/dir` 
+`python3 -m TUC rebot path/to/report/dir path/to/output/dir` 
 
 Then TUC will fetch robot XML reports from **inputdir** and regenerate new report to **outputdir**
 ```

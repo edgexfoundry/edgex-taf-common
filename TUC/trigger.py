@@ -1,16 +1,17 @@
 """
- @copyright Copyright (C) 2019 Intel Corporation
- @copyright Copyright (C) 2019 IOTech Ltd
+@copyright Copyright (C) 2019 Intel Corporation
+@copyright Copyright (C) 2019-2025 IOTech Ltd
 
- @license SPDX-License-Identifier: Apache-2.0
+@license SPDX-License-Identifier: Apache-2.0
 
- @file trigger.py
+@file trigger.py
 
- @description
-     This file should execute at edgex-taf root directory, it allows testers to execute set(s) of testCases/useCases based on the parameters passed. It will create
-     a report based on the results that can be published in a web server or can sent through email.
+@description
+    This file should execute at edgex-taf root directory, it allows testers to execute set(s) of testCases/useCases based on the parameters passed. It will create
+    a report based on the results that can be published in a web server or can sent through email.
 
 """
+
 import argparse
 import glob
 import logging
@@ -21,114 +22,19 @@ from robot import run
 from robot import rebot
 
 WORK_DIR = os.getcwd()
-SCENARIOS_DIR = WORK_DIR + "/TAF/testScenarios/"
-ARTIFACTS_DIR = WORK_DIR + "/TAF/testArtifacts/"
-CONFIG_DIR = WORK_DIR + "/TAF/config/"
-OUTPUTDIR = ARTIFACTS_DIR + "/reports/edgex"
-VERSION = "1.0"
-RUNLEVEL = "INFO"
+SCENARIOS_DIR = WORK_DIR + "/TAF/testScenarios"
+CONFIG_DIR = WORK_DIR + "/TAF/config"
+DEFAULT_CONFIG_SUBDIR = "default"
+ARTIFACTS_DIR = WORK_DIR + "/TAF/testArtifacts"
+ARTIFACTS_LOGS_DIR = ARTIFACTS_DIR + "/logs"
+ARTIFACTS_REPORTS_DIR = ARTIFACTS_DIR + "/reports"
+LOG_LEVEL = ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "NONE"]
+INFO_LOG_LEVEL = "INFO"
 
 sys.path.append(WORK_DIR)
 sys.path.append(WORK_DIR + "/edgex-taf-common")
 
 from TUC.data.SettingsInfo import SettingsInfo
-
-def error(msg):
-    """
-    This function logs an error message and end the execution.
-
-    @param msg  Message to be displayed before stopping test execution.
-    """
-    sys.stderr.write(msg + "\r\n")
-    sys.exit()
-
-
-def configure_parser():
-    """
-    This method is the console log parser
-
-    @retval t_parser  Returns TAF Parser
-    """
-    t_parser = argparse.ArgumentParser(description="TAF test Runner")
-    t_parser.add_argument("-u", "--useCase", action="append", default=None, dest="useCase", help="specify UC")
-    t_parser.add_argument("-t", "--testCase", action="append", default=None, dest="testCase", help="specify TestCase")
-    t_parser.add_argument("-i", "--include", action="append", default=None, dest="include", help="Tags to include")
-    t_parser.add_argument("-e", "--exclude", action="append", default=None, dest="exclude", help="Tags to exclude")
-    t_parser.add_argument("-L", "--loglevel", choices=["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "NONE"],
-                          default=RUNLEVEL, dest="logLevel", help="Tags to exclude")
-    t_parser.add_argument("--version", "-v", action="version", version="%(prog)s {0}".format(VERSION))
-    t_parser.add_argument("-p", "--profile", default=None, dest="profile", help="profile to use")
-    t_parser.add_argument("--name", default=None, dest="name", help="Override the name of the top level test suite")
-
-    sub_cmd = t_parser.add_subparsers(dest="sub_cmd")
-
-    rebot_sub_cmd = sub_cmd.add_parser('rebot')
-    rebot_sub_cmd.add_argument("--inputdir", default=None, dest="inputdir", help="where to fetch report files")
-    rebot_sub_cmd.add_argument("--outputdir", default=None, dest="outputdir", help="where to create output files")
-
-    return t_parser
-
-
-def validate_args(args):
-    """
-    Validate arguments received.
-    """
-    if args.useCase and args.testCase:
-        error("Can only specify one useCase or testCase", 1)
-    elif not (args.useCase or args.testCase):
-        error("Need at least one useCase or testCase", 2)
-
-
-def remove_old_logs():
-    files = glob.glob(ARTIFACTS_DIR + "logs/*.log")
-    for f in files:
-        os.remove(f)
-
-
-def remove_old_report_folder():
-    if os.path.isdir(OUTPUTDIR):
-        shutil.rmtree(OUTPUTDIR)
-
-
-def setup_config(args):
-    os.environ['WORK_DIR'] = WORK_DIR
-    os.environ['PROFILE'] = args.profile
-
-    # Read environment variable and store to SettingsInfo
-    SettingsInfo().add_name('workDir', os.environ['WORK_DIR'])
-    SettingsInfo().add_name('profile', os.environ['PROFILE'])
-
-    # Read config file and store to SettingsInfo
-    constant = __import__("TAF.config.global_variables", fromlist=['global_variables'])
-    SettingsInfo().add_name('constant', constant)
-
-    profile_constant = __import__("TAF.config." + os.environ['PROFILE'] + ".configuration", fromlist=['configuration'])
-    SettingsInfo().add_name('profile_constant', profile_constant)
-
-
-def get_kwargs(args):
-    kwargs = {
-                "loglevel": args.logLevel,
-                "outputdir": OUTPUTDIR,
-                "output": OUTPUTDIR+"/"+"report.xml",
-                "variable": ["WORK_DIR:{}".format(WORK_DIR), "PROFILE:{}".format(args.profile)]
-    }
-
-    if args.name:
-        kwargs["name"] = args.name
-    elif args.profile:
-        kwargs["name"] = args.profile
-
-    if args.profile:
-        global_variables_file = "{}/global_variables.py".format(CONFIG_DIR)
-        variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, args.profile)
-        kwargs["variablefile"] = [global_variables_file, variable_file]
-
-    if args.include:
-        kwargs["include"] = args.include
-    if args.exclude:
-        kwargs["exclude"] = args.exclude
-    return kwargs
 
 
 def start():
@@ -143,31 +49,214 @@ def start():
         run_rebot(args)
 
 
+def configure_parser():
+    """
+    This method is the console log parser
+
+    @retval t_parser  Returns TAF Parser
+    """
+    t_parser = argparse.ArgumentParser(description="TAF test Runner")
+    t_parser.add_argument(
+        "-t",
+        "--testPath",
+        action="append",
+        metavar="<dir_or_file>",
+        default=None,
+        dest="testPath",
+        help="Specify test files or directories [default:{}].".format(SCENARIOS_DIR),
+    )
+    t_parser.add_argument(
+        "-i",
+        "--include",
+        action="append",
+        metavar="<tag>",
+        default=None,
+        dest="include",
+        help="Include tests with this tag.",
+    )
+    t_parser.add_argument(
+        "-e",
+        "--exclude",
+        action="append",
+        metavar="<tag>",
+        default=None,
+        dest="exclude",
+        help="Exclude tests with this tag.",
+    )
+    t_parser.add_argument(
+        "-cd",
+        "--configDir",
+        metavar="<dir>",
+        default=DEFAULT_CONFIG_SUBDIR,
+        dest="configDir",
+        help="Specify a configuration directory to use (relative to the config directory:{}) [default:{}].".format(
+            CONFIG_DIR, DEFAULT_CONFIG_SUBDIR
+        ),
+    )
+    t_parser.add_argument(
+        "-d",
+        "--outputDir",
+        metavar="<dir>",
+        default=None,
+        dest="outputDir",
+        help="Specify output directory (relative to the report directory:{}).".format(
+            ARTIFACTS_REPORTS_DIR
+        ),
+    )
+    t_parser.add_argument(
+        "-o",
+        "--output",
+        metavar="<name>",
+        default=None,
+        dest="outputName",
+        help="Specify the base name for the outputs (relative to the output directory) By default, the outputs will be 'report.xml', 'log.html' and 'report.html'.",
+    )
+    t_parser.add_argument(
+        "-l",
+        "--logLevel",
+        metavar="<log_level>",
+        choices=LOG_LEVEL,
+        default=INFO_LOG_LEVEL,
+        dest="logLevel",
+        help="Specify log level (valid log level:{}) [default:{}].".format(
+            LOG_LEVEL, INFO_LOG_LEVEL
+        ),
+    )
+    t_parser.add_argument(
+        "-n",
+        "--name",
+        metavar="<name>",
+        default=None,
+        dest="name",
+        help="Override the name of the top level test suite.",
+    )
+    t_parser.add_argument(
+        "--no-cleanup",
+        action="store_true",
+        help="Disable cleanup of previous log and report files. By default, cleanup is performed unless this flag is set.",
+    )
+
+    sub_cmd = t_parser.add_subparsers(title="subcommands", dest="sub_cmd")
+    rebot_sub_cmd = sub_cmd.add_parser("rebot")
+    rebot_sub_cmd.add_argument(
+        "inputdir", default=None, help="Where to fetch report files"
+    )
+    rebot_sub_cmd.add_argument(
+        "outputdir", default=None, help="Where to create output files"
+    )
+    rebot_sub_cmd.add_argument(
+        "--title", metavar="<title>", default="edgex", help="Report and log titles"
+    )
+
+    return t_parser
+
+
 def run_robot(args):
-    remove_old_report_folder()
-    remove_old_logs()
+    if not args.testPath:
+        args.testPath = ["*"]
 
-    validate_args(args)
+    logging.info("Running tests {}".format(args.testPath))
 
-    logging.info("Run testing for profile '{0}'".format(args.profile))
+    if not args.no_cleanup:
+        remove_old_report_folder(args.outputDir)
+        remove_old_logs()
+
+    logging.info("Run testing with config dir '{}'".format(args.configDir))
     setup_config(args)
+
+    # Prepare **options for robot.run()
     kwargs = get_kwargs(args)
-
     os.chdir(SCENARIOS_DIR)
-    if args.useCase and ('*' in args.useCase or '.' in args.useCase):
-        logging.info("Running use case {0}".format(args.useCase))
-        run('.', **kwargs)
-    elif args.useCase:
-        logging.info("Running use case {0}".format(args.testCase))
-        run(*args.useCase, **kwargs)
-
-    if args.testCase:
-        logging.info("Running test case {0}".format(args.testCase))
-        run(*args.testCase, **kwargs)
+    logging.debug("Executing tests with arguments: {}".format(kwargs))
+    if "*" in args.testPath or "." in args.testPath:
+        run(".", **kwargs)
+    else:
+        run(*args.testPath, **kwargs)
 
 
 def run_rebot(args):
-    logging.info("Run rebot for the '{0}' folder".format(args.inputdir))
+    logging.info("Run rebot for the '{}' folder".format(args.inputdir))
     #  Aggregate testing reports
-    files = glob.glob(args.inputdir+"/*.xml")
-    rebot(*files, name="edgex", outputdir=args.outputdir, xunit="result.xml")
+    files = glob.glob(args.inputdir + "/*.xml")
+    rebot(*files, name=args.title, outputdir=args.outputdir, xunit="result.xml")
+
+
+def remove_old_logs():
+    logging.debug("Delete obsolete log files under '{}'".format(ARTIFACTS_LOGS_DIR))
+    remove_files(ARTIFACTS_LOGS_DIR, "*.log")
+
+
+def remove_old_report_folder(dir):
+    full_dir = "{}/{}".format(ARTIFACTS_REPORTS_DIR, dir)
+    if dir == None:
+        logging.debug(
+            "Delete obsolete report files under '{}'".format(ARTIFACTS_REPORTS_DIR)
+        )
+        remove_files(ARTIFACTS_REPORTS_DIR)
+    elif os.path.isdir(full_dir):
+        logging.debug("Delete obsolete report folder: {}".format(dir))
+        shutil.rmtree(full_dir)
+
+
+def remove_files(path, pattern="*"):
+    files = glob.glob(path + "/" + pattern)
+    for f in files:
+        if os.path.isfile(f):
+            os.remove(f)
+
+
+def setup_config(args):
+    os.environ["WORK_DIR"] = WORK_DIR
+    os.environ["TAF_CONFIG"] = args.configDir
+
+    # Read environment variable and store to SettingsInfo
+    SettingsInfo().add_name("workDir", os.environ["WORK_DIR"])
+    SettingsInfo().add_name("tafConfig", os.environ["TAF_CONFIG"])
+
+    # Read config file and store to SettingsInfo
+    constant = __import__("TAF.config.global_variables", fromlist=["global_variables"])
+    SettingsInfo().add_name("constant", constant)
+
+    config_constant = __import__(
+        "TAF.config." + os.environ["TAF_CONFIG"] + ".configuration",
+        fromlist=["configuration"],
+    )
+    SettingsInfo().add_name("config_constant", config_constant)
+
+
+def get_kwargs(args):
+    global_variables_file = "{}/global_variables.py".format(CONFIG_DIR)
+    kwargs = {
+        "loglevel": args.logLevel,
+        "outputdir": ARTIFACTS_REPORTS_DIR,
+        "variable": [
+            "WORK_DIR:{}".format(WORK_DIR),
+            "TEST_CONFIG:{}".format(args.configDir),
+        ],
+        "variablefile": [global_variables_file],
+    }
+
+    if args.name:
+        kwargs["name"] = args.name
+    elif args.configDir:
+        kwargs["name"] = args.configDir
+
+    if args.include:
+        kwargs["include"] = args.include
+
+    if args.exclude:
+        kwargs["exclude"] = args.exclude
+
+    if args.configDir:
+        variable_file = "{}/{}/configuration.py".format(CONFIG_DIR, args.configDir)
+        kwargs["variablefile"].append(variable_file)
+
+    if args.outputDir:
+        kwargs["outputdir"] = "{}/{}".format(ARTIFACTS_REPORTS_DIR, args.outputDir)
+
+    if args.outputName:
+        kwargs["output"] = "{}-report.xml".format(args.outputName)
+        kwargs["log"] = "{}-log.html".format(args.outputName)
+        kwargs["report"] = "{}-report.html".format(args.outputName)
+
+    return kwargs
