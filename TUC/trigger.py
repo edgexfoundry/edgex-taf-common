@@ -238,8 +238,6 @@ def get_kwargs(args):
 
     if args.name:
         kwargs["name"] = args.name
-    elif args.configDir:
-        kwargs["name"] = args.configDir
 
     if args.include:
         kwargs["include"] = args.include
