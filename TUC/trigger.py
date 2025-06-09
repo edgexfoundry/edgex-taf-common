@@ -192,7 +192,8 @@ def remove_old_report_folder(dir):
         logging.debug(
             "Delete obsolete report files under '{}'".format(ARTIFACTS_REPORTS_DIR)
         )
-        remove_files(ARTIFACTS_REPORTS_DIR)
+        remove_files(ARTIFACTS_REPORTS_DIR, "*.xml")
+        remove_files(ARTIFACTS_REPORTS_DIR, "*.html")
     elif os.path.isdir(full_dir):
         logging.debug("Delete obsolete report folder: {}".format(dir))
         shutil.rmtree(full_dir)
