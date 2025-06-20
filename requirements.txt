@@ -17,3 +17,4 @@ pycryptodome==3.22.0
 protobuf==6.30.2
 pyjwt==2.10.1
 cryptography==45.0.3
+urllib3>=2.5.0 # not directly required, pinned by Snyk to avoid a vulnerability
