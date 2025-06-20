@@ -5,7 +5,7 @@ robotframework-seleniumlibrary==6.7.1
 robotbackgroundlogger==1.2
 RESTinstance==1.5.2
 configparser==7.2.0
-requests==2.32.3
+requests==2.32.4
 paho-mqtt==2.1.0
 docker==7.1.0
 numpy==2.2.5
