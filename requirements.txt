@@ -17,3 +17,5 @@ pycryptodome==3.23.0
 protobuf==6.31.1
 pyjwt==2.10.1
 cryptography==45.0.3
+websocket-client==1.8.0
+requests-sse==0.5.2
