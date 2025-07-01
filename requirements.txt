@@ -10,7 +10,7 @@ paho-mqtt==2.1.0
 docker==7.1.0
 numpy==2.2.5
 psutil==7.0.0
-pyzmq==26.4.0
+pyzmq==27.0.0
 influxdb-client==1.49.0
 psycopg2==2.9.10
 pycryptodome==3.23.0
