@@ -1,22 +1,23 @@
 """
- @copyright Copyright (C) 2019 Intel Corporation
+@copyright Copyright (C) 2019 Intel Corporation
+@copyright Copyright (C) 2025 IOTech Ltd
 
- @license SPDX-License-Identifier: Apache-2.0
+@license SPDX-License-Identifier: Apache-2.0
 
- @package TUC.report
+@package TUC.report
 
- @file ColorLog.py
+@file ColorLog.py
 
- @description
-    Log class that logs level by color
+@description
+   Log class that logs level by color
 """
+
 import sys
 import logging
 import traceback
 
 
 class ColorLog:
-
     """
     Log class that logs level by color
 
@@ -26,28 +27,35 @@ class ColorLog:
     """
 
     ##  Blue bold
-    HEADER = '\033[95m'
+    HEADER = "\033[95m"
     ##  Blue
-    OKBLUE = '\033[94m'
+    OKBLUE = "\033[94m"
     ## Green
-    OKGREEN = '\033[92m'
+    OKGREEN = "\033[92m"
     ## Light Red
-    WARNING = '\033[93m'
+    WARNING = "\033[93m"
     ## RED
-    ERROR = '\033[91m'
+    ERROR = "\033[91m"
     ## Ends previous coloring
-    ENDC = '\033[0m'
+    ENDC = "\033[0m"
     ## BOLD
-    BOLD = '\033[1m'
+    BOLD = "\033[1m"
     ## DEBUG
-    DEBUG = '\33[30m\033[47m'
+    DEBUG = "\33[30m\033[47m"
     ## UNDERLINE
-    UNDERLINE = '\033[4m'
+    UNDERLINE = "\033[4m"
 
     ## python self._backgroundlogger object
     logger = None
 
-    def __init__(self, filename="log.log", strfmt='[%(asctime)s] %(levelname)-8s: %(message)s', lvl=logging.INFO, logName=None, useBackGroundLogger=True):
+    def __init__(
+        self,
+        filename="log.log",
+        strfmt="[%(asctime)s] %(levelname)-8s: %(message)s",
+        lvl=logging.INFO,
+        logName=None,
+        useBackGroundLogger=True,
+    ):
         """
         class constructor
 
@@ -64,23 +72,27 @@ class ColorLog:
             self.logger = logging.getLogger(logName)
         else:
             self.logger = logging.getLogger()
+
+        self.logger.setLevel(lvl)
+
         self.bgnLog = useBackGroundLogger
         if useBackGroundLogger:
             from robotbackgroundlogger import BackgroundLogger
+
             self._backgroundlogger = BackgroundLogger()
 
         if logName is None and self.logger.handlers:
             self.logger.handlers = []
 
         if logName is None:
-            logging.basicConfig(format=strfmt, level=lvl, datefmt='%Y-%m-%d %I:%M:%S %p')
+            logging.basicConfig(format=strfmt, level=lvl, datefmt="%Y-%m-%d %I:%M:%S %p")
             self.lhStdout = self.logger.handlers[0]
             self.logger.removeHandler(self.lhStdout)
             if self.logger.handlers:
                 self.logger.handlers = []
 
         self.fh = logging.FileHandler(filename)
-        self.fh.setFormatter(logging.Formatter(fmt=strfmt, datefmt='%m/%d/%Y %H:%M:%S'))
+        self.fh.setFormatter(logging.Formatter(fmt=strfmt, datefmt="%m/%d/%Y %H:%M:%S"))
         self.fh.setLevel(logging.DEBUG)
         self.logger.addHandler(self.fh)
 
@@ -90,12 +102,12 @@ class ColorLog:
 
     def debug(self, text):
         """
-        log text at log level 'info'
+        log text at log level 'debug'
 
         @param    text    the text to log
 
         """
-        self.logger.debug(self.DEBUG+str(text)+self.ENDC)
+        self.logger.debug(self.DEBUG + str(text) + self.ENDC)
         if self.bgnLog:
             self._backgroundlogger.debug(text)
 
@@ -142,9 +154,9 @@ class ColorLog:
         """
         exc_type, exc_value, exc_traceback = sys.exc_info()
         lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-        self.error(name.join(' ' + line for line in lines))
+        self.error(name.join(" " + line for line in lines))
         if self.bgnLog:
-            self._backgroundlogger.error(name.join(' ' + line for line in lines))
+            self._backgroundlogger.error(name.join(" " + line for line in lines))
 
     def PASS(self, text):
         """
@@ -205,7 +217,7 @@ class ColorLog:
         if self.bgnLog:
             self._backgroundlogger.log_background_messages()
 
-    def setLevel(self,lvl):
+    def setLevel(self, lvl):
         """
         Set Level for logger
         @param   lvl   logging level

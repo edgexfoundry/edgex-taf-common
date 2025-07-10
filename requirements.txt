@@ -1,5 +1,5 @@
-robotframework==7.2.2
-python-dotenv==1.1.0
+robotframework==7.3.1
+python-dotenv==1.1.1
 robotframework-requests==0.9.7
 robotframework-seleniumlibrary==6.7.1
 robotbackgroundlogger==1.2
@@ -10,12 +10,13 @@ paho-mqtt==2.1.0
 docker==7.1.0
 numpy==2.2.5
 psutil==7.0.0
-pyzmq==26.4.0
+pyzmq==27.0.0
 influxdb-client==1.49.0
 psycopg2==2.9.10
 pycryptodome==3.23.0
 protobuf==6.31.1
 pyjwt==2.10.1
-cryptography==45.0.3
+cryptography==45.0.4
 websocket-client==1.8.0
-requests-sse==0.5.2
+sseclient-py==1.8.0
+genson==1.3.0
