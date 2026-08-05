@@ -1,5 +1,5 @@
 robotframework==7.3.1
-python-dotenv==1.1.1
+python-dotenv==1.2.2
 robotframework-requests==0.9.7
 robotframework-seleniumlibrary==6.7.1
 robotframework-sshlibrary==3.8.0
