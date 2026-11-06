@@ -21,3 +21,6 @@ cryptography==50.0.0
 websocket-client==1.8.0
 sseclient-py==1.8.0
 genson==1.3.0
+asyncua==2.1.0
+httpx2==2.16.0
+mcp==2.3.0
