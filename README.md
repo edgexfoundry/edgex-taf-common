@@ -98,6 +98,18 @@ path/to/output/dir
 └── result.xml (xUnit compatible XML format)
 ```
 
+### Options
+| Option | Default | Description |
+|---|---|---|
+| `--title <title>` | `edgex` | Top-level suite name, and the default title of `log.html` and `report.html` |
+| `--logtitle <title>` | value of `--title` | Title of `log.html` |
+| `--reporttitle <title>` | value of `--title` | Title of `report.html` |
+
+Unlike Robot Framework's default behavior, `Log` and `Report` are not appended to the title.
+To get the original style, specify the titles explicitly:
+
+`python3 -m TUC rebot path/to/report/dir path/to/output/dir --title EdgeX --logtitle "EdgeX Log" --reporttitle "EdgeX Report"`
+
 ## Community
 - Discussion: https://github.com/orgs/edgexfoundry/discussions
 - Mailing lists: https://lists.edgexfoundry.org/mailman/listinfo
