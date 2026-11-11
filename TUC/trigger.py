@@ -147,6 +147,14 @@ def configure_parser():
     rebot_sub_cmd.add_argument(
         "--title", metavar="<title>", default="edgex", help="Report and log titles"
     )
+    rebot_sub_cmd.add_argument(
+        "--logtitle", metavar="<title>", default=None,
+        help="Log title. Default is <title>"
+    )
+    rebot_sub_cmd.add_argument(
+        "--reporttitle", metavar="<title>", default=None,
+        help="Report title. Default is <title>"
+    )
 
     return t_parser
 
@@ -178,7 +186,9 @@ def run_rebot(args):
     logging.info("Run rebot for the '{}' folder".format(args.inputdir))
     #  Aggregate testing reports
     files = glob.glob(args.inputdir + "/*.xml")
-    rebot(*files, name=args.title, outputdir=args.outputdir, xunit="result.xml")
+    rebot(*files, name=args.title, logtitle=args.logtitle or args.title,
+          reporttitle=args.reporttitle or args.title,
+          outputdir=args.outputdir, xunit="result.xml")
 
 
 def remove_old_logs():

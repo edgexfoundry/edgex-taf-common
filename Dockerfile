@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-FROM alpine:3.20
+FROM alpine:3.23
 
 LABEL license='SPDX-License-Identifier: Apache-2.0' \
   copyright='Copyright (c) 2022: IOTech'
@@ -26,8 +26,8 @@ RUN apk upgrade && apk add --update --no-cache openssl curl jq docker-cli && \
     # Add packages for psycopg2
     apk add --no-cache libc-dev libffi-dev postgresql-dev gcc musl-dev && \
     \
-    # Update packages for RESTinstance and pyzmq
-    apk add --no-cache python3-dev g++ zeromq-dev=4.3.5-r2  &&  \
+    # Update packages for RESTinstance
+    apk add --no-cache python3-dev g++ && \
     \
     # install Python
     apk add --no-cache python3 && \
